@@ -1,0 +1,49 @@
+1)
+    a)  {g++ pointers.cpp -g -o pointers} to compile
+        {gdb pointers} to start gdb
+        {next OR n} repeatedly shows the code till line 13
+
+        Program received signal SIGSEGV, Segmentation fault.
+        0x000055555555523e in main (argc=1, argv=0x7fffffffe028) at pointers.cpp:13
+        13	  cout << *p << endl;
+
+        This error message pops up.
+
+    b)  I added 2 break points on lines 6,14 to stop the execution there
+    and then read the states of the variables at these points
+    after the 4th iteration it became evident that the code wasn't updating
+    'second_last' properly. The assignment of line 17 should be done before line 16
+    and this will work properly
+
+VALGRIND
+
+Q)  On ruuning the valgrind instruction we get 6 errors, these being :
+
+    i) [Syscall param write(buf) points to uninitialised byte(s)]
+        this happened because an array arr was declared but wasn't initialised before writing it's content 
+        in some file.
+    
+    ii) [Invalid write of size 1]
+        we try to assign a character through a char pointer but there's no memory to write to.
+
+    iii) [Invalid read of size 1]
+        here we are trying to access a memory location through pointer p but there isn't any such location
+        so an error is raised.
+
+    iv) Invalid free() / delete / delete[] / realloc()
+        here we tried to call free() function on a stack memory and thus invalid error was shown.
+
+    v) HEAP SUMMARY:
+        ==84768==     in use at exit: 80 bytes in 2 blocks
+        ==84768==   total heap usage: 4 allocs, 3 frees, 1,116 bytes allocated
+        ==84768== 
+        ==84768== 30 bytes in 1 blocks are definitely lost in loss record 1 of 2
+        ==84768==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+        ==84768==    by 0x10920D: main (memory_bugs.c:16)
+        ==84768== 
+        ==84768== 50 bytes in 1 blocks are definitely lost in loss record 2 of 2
+        ==84768==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+        ==84768==    by 0x109280: main (memory_bugs.c:32)
+
+    The final error was in terms of free memory where two malloc calls of 30 & 50 Bytes respectively were not 
+    freed and thus became leaked memory.

@@ -1,0 +1,107 @@
+1)
+    a)  processor : It tells us about the total number of hyperthreads that our processor can run.
+        cores : It tells the number of physically available cores for parallel execution.
+
+    b) My machine has 6 cores, verified using lscpu
+
+    c) My machine shows 12 processors
+
+    d) Each processor has a frequency of 1400 Mhz, I used {more /proc/cpuinfo} to find the details of every processor
+
+    e) CPU Architecture :  x86_64 {lscpu} used to find this info.
+
+    f) Total Memory : 5932244 kB {more /proc/meminfo} to know about memory related details.
+
+    g) MemFree : 345608 kB --same instruction as above--
+
+    h) Total forks : 130464
+        context Switches : 501108865  used {more /proc/stat} to find forks and context switches
+
+2)  used {top} command to evaluate all this.
+    a) PID : 130600 the process CPU
+    b) %CPU : 99.7% %Mem : 0.0%
+    c) Current State : Running State
+
+3)
+    a) PID : 131367, used {ps -e} to find list of all processes, then found the PID of cpu-print
+    b) Ancestors : used {ps -ef | grep "cpu-print"} followed by using the PPID instead of "cpu-print" repeatedly till PPID 1 was found
+        131367->128367->128340->23481->1
+        
+    c) PID : 81937
+     {ls -l /proc/81937/fd}
+
+        total 0
+        lrwx------ 1 dhiraj dhiraj 64 Aug 11 18:56 0 -> /dev/pts/0
+        l-wx------ 1 dhiraj dhiraj 64 Aug 11 18:56 1 -> /tmp/tmp.txt
+        lrwx------ 1 dhiraj dhiraj 64 Aug 11 18:56 2 -> /dev/pts/0
+
+        Used {more /proc/81937/fdinfo} command to successively check the details of the three files
+
+
+        pos:	0
+        flags:	02000002
+        mnt_id:	27
+        ino:	3
+   [The inode number - Index node number of the target file (in hexadecimal) 
+                    Linux must allocate an index node (inode) for every file and directory in the filesystem]
+
+       pos:	238223360
+        flags:	0100001
+        mnt_id:	30
+        ino:	7209011
+
+        pos:	0
+        flags:	02000002
+        mnt_id:	27
+        ino:	3
+
+
+    d) PID : 82315
+        {ls -l /proc/82315/fd}
+
+        total 0
+        lr-x------ 1 dhiraj dhiraj 64 Aug 11 19:03 0 -> 'pipe:[1600539]'
+        lrwx------ 1 dhiraj dhiraj 64 Aug 11 19:03 1 -> /dev/pts/0
+        lrwx------ 1 dhiraj dhiraj 64 Aug 11 19:03 2 -> /dev/pts/0
+
+        Used {more /proc/82315/fdinfo/0}
+
+        pos:	0
+        flags:	00
+        mnt_id:	14
+        ino:	1600539
+
+        pos:	0
+        flags:	02000002
+        mnt_id:	27
+        ino:	3
+
+
+        pos:	0
+        flags:	02000002
+        mnt_id:	27
+        ino:	3
+
+    e) {which COMMAND} command tells us where the process binary is stored in the kernel directory
+        on running this we find that {ls} and {ps} are stored in /usr/bin.
+
+4)  {ps -au}
+
+    USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+
+    dhiraj     82856  0.0  0.0   6556  4820 pts/0    S<+  19:20   0:00 ./memory1
+    dhiraj     82859  0.0  0.0   6556  4820 pts/1    S<+  19:20   0:00 ./memory2
+
+
+
+5)  {sudo sh echo 3 > /proc/sys/vm/drop_caches} to clear the disk caches but we need super user permission to run it
+
+    {iostat 1 50 > ./disk1.txt}
+    {iostat 1 50 > ./disk2.txt}
+
+    these commands record a stream of 50 itop snaps each with 1 sec interval.
+    reading the files shows us clear how disk cache comes into play.
+    I attached disk1.txt and disk2.txt while has piped outputs for the readings of Disk and Disk1 code respectively.
+    
+
+
